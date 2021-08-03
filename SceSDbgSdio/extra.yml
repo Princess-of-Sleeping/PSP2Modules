@@ -1,0 +1,18 @@
+modules:
+  SceSysmem:
+    nid: 0x3380B323
+    libraries:
+      SceKernelSuspendForDriver:
+        version: 1
+        kernel: true
+        nid: 0x7290B21C
+        functions:
+          SceKernelSuspendForDriver_105C5752: 0x105C5752
+          SceKernelSuspendForDriver_CE7A2207: 0xCE7A2207
+      SceSysrootForKernel:
+        version: 2
+        kernel: true
+        nid: 0x3691DA45
+        functions:
+          SceSysrootForKernel_8E4B61F1: 0x8E4B61F1
+          SceSysrootForKernel_AE55B7CC: 0xAE55B7CC

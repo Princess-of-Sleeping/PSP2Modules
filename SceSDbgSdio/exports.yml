@@ -1,0 +1,17 @@
+SceSDbgSdio:
+  attributes: 7
+  version:
+    major: 1
+    minor: 1
+  main:
+    start: module_start
+  modules:
+    SceSDbgSdioForKernel:
+      version: 1
+      nid: 0xE6F87547
+      syscall: false
+      functions:
+        - sceSDbgSdioInit: 0x99863185
+        - sceSDbgSdioFini: 0x356C6621
+        - sceSDbgSdioRead: 0x2EC24C58
+        - sceSDbgSdioWrite: 0x7876806C
