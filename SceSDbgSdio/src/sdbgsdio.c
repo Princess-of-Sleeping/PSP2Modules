@@ -208,7 +208,7 @@ int sceSDbgSdioFini(void){
 	return 0;
 }
 
-int sceSDbgSdioRead(SceUInt32 a1, void *data, SceSize size){
+int sceSDbgSdioRead(SceUInt32 core, void *data, SceSize size){
 
 	SceBool wait_read_comp;
 	SceSize size_remain, size_read, recv_size, cached_data_size;
@@ -216,31 +216,33 @@ int sceSDbgSdioRead(SceUInt32 a1, void *data, SceSize size){
 	int has_read_cache;
 	uint32_t send_buffer[4], recv_buffer[4];
 
-	if(a1 >= 4)
+	if(core >= 4)
 		return 0x80020005;
 
-	cached_data_size = sdio_ctx.sdio_data[a1].data_0x1105C;
+	SceSDbgSdioData *pSdioData = &sdio_ctx.sdio_data[core];
+
+	cached_data_size = pSdioData->data_0x1105C;
 	if(cached_data_size != 0){
 		if(size < cached_data_size)
 			cached_data_size = size;
 
-		memcpy(data, sdio_ctx.sdio_data[a1].data_0x11058, cached_data_size);
-		sdio_ctx.sdio_data[a1].data_0x11058 += cached_data_size;
-		sdio_ctx.sdio_data[a1].data_0x1105C -= cached_data_size;
+		memcpy(data, pSdioData->data_0x11058, cached_data_size);
+		pSdioData->data_0x11058 += cached_data_size;
+		pSdioData->data_0x1105C -= cached_data_size;
 	}
 
 	if(size <= cached_data_size)
 		return cached_data_size;
 
-	if(((*sdio_ctx.sdio_data[a1].data_0x04) & 0xFFFF) == 0)
+	if(((*pSdioData->data_0x04) & 0xFFFF) == 0)
 		return cached_data_size;
 
-	while(((*sdio_ctx.sdio_data[a1].data_0x04) & 3) == 0);
-	*sdio_ctx.sdio_data[a1].data_0x04 = 3;
+	while(((*pSdioData->data_0x04) & 3) == 0);
+	*pSdioData->data_0x04 = 3;
 	asm volatile("dsb sy\n");
 
 	for(int i=0;i<0x10;i++)
-		((char *)&recv_buffer[0])[i] = sdio_ctx.sdio_data[a1].data_0x34[i];
+		((char *)&recv_buffer[0])[i] = pSdioData->data_0x34[i];
 
 	size -= cached_data_size;
 	next_read_point = data + cached_data_size;
@@ -254,24 +256,24 @@ int sceSDbgSdioRead(SceUInt32 a1, void *data, SceSize size){
 			recv_size = recv_buffer[0];
 		}
 
-		send_buffer[0] = sdio_ctx.sdio_data[a1].data_0x4C;
+		send_buffer[0] = pSdioData->data_0x4C;
 		send_buffer[1] = recv_buffer[0];
 		send_buffer[2] = 0;
-		send_buffer[3] = sdio_ctx.sdio_data[a1].data_0x50;
+		send_buffer[3] = pSdioData->data_0x50;
 
 		for(int i=0;i<0x10;i++)
-			sdio_ctx.sdio_data[a1].data_0x38[i] = ((char *)&send_buffer[0])[i];
+			pSdioData->data_0x38[i] = ((char *)&send_buffer[0])[i];
 
-		*sdio_ctx.sdio_data[a1].data_0x0C = 0x20000;
+		*pSdioData->data_0x0C = 0x20000;
 
-		while((*sdio_ctx.sdio_data[a1].data_0x04 & 4) == 0);
-		*sdio_ctx.sdio_data[a1].data_0x04 = 4;
+		while((*pSdioData->data_0x04 & 4) == 0);
+		*pSdioData->data_0x04 = 4;
 		asm volatile("dsb sy\n");
 
 		if(has_read_cache != 0){
-			read_data_ptr = sdio_ctx.sdio_data[a1].data_0x58;
-			sdio_ctx.sdio_data[a1].data_0x11058 = read_data_ptr;
-			sdio_ctx.sdio_data[a1].data_0x1105C = recv_buffer[0];
+			read_data_ptr = pSdioData->data_0x58;
+			pSdioData->data_0x11058 = read_data_ptr;
+			pSdioData->data_0x1105C = recv_buffer[0];
 		}else{
 			read_data_ptr = next_read_point;
 		}
@@ -284,15 +286,15 @@ int sceSDbgSdioRead(SceUInt32 a1, void *data, SceSize size){
 				size_read = send_buffer[3];
 
 			if(wait_read_comp){
-				while((*sdio_ctx.sdio_data[a1].data_0x04 & 4) == 0);
-				*sdio_ctx.sdio_data[a1].data_0x04 = 4;
+				while((*pSdioData->data_0x04 & 4) == 0);
+				*pSdioData->data_0x04 = 4;
 				asm volatile("dsb sy\n");
 			}
 
 			for(int i=0;i<size_read;i++)
-				read_data_ptr[i] = sdio_ctx.sdio_data[a1].data_0x40[i];
+				read_data_ptr[i] = pSdioData->data_0x40[i];
 
-			*sdio_ctx.sdio_data[a1].data_0x0C = 0x40000;
+			*pSdioData->data_0x0C = 0x40000;
 
 			read_data_ptr += size_read;
 			size_remain -= size_read;
@@ -300,101 +302,103 @@ int sceSDbgSdioRead(SceUInt32 a1, void *data, SceSize size){
 		}
 
 		if(has_read_cache != 0){
-			memcpy(next_read_point, sdio_ctx.sdio_data[a1].data_0x11058, size);
-			sdio_ctx.sdio_data[a1].data_0x11058 += size;
-			sdio_ctx.sdio_data[a1].data_0x1105C -= size;
+			memcpy(next_read_point, pSdioData->data_0x11058, size);
+			pSdioData->data_0x11058 += size;
+			pSdioData->data_0x1105C -= size;
 		}
 	}else{
-		while((*sdio_ctx.sdio_data[a1].data_0x04 & 4) == 0);
-		*sdio_ctx.sdio_data[a1].data_0x04 = 4;
+		while((*pSdioData->data_0x04 & 4) == 0);
+		*pSdioData->data_0x04 = 4;
 		asm volatile("dsb sy\n");
 
 		if(size < recv_buffer[0]){
 			for(int i=0;i<size;i++)
-				next_read_point[i] = sdio_ctx.sdio_data[a1].data_0x3C[i];
+				next_read_point[i] = pSdioData->data_0x3C[i];
 
-			sdio_ctx.sdio_data[a1].data_0x11058 = sdio_ctx.sdio_data[a1].data_0x58;
-			sdio_ctx.sdio_data[a1].data_0x1105C = recv_buffer[0] - size;
+			pSdioData->data_0x11058 = pSdioData->data_0x58;
+			pSdioData->data_0x1105C = recv_buffer[0] - size;
 
 			for(int i=0;i<(recv_buffer[0] - size);i++)
-				sdio_ctx.sdio_data[a1].data_0x58[i] = sdio_ctx.sdio_data[a1].data_0x3C[size + i];
+				pSdioData->data_0x58[i] = pSdioData->data_0x3C[size + i];
 
 			recv_size = size;
 		}else{
 			for(int i=0;i<recv_buffer[0];i++)
-				next_read_point[i] = sdio_ctx.sdio_data[a1].data_0x3C[i];
+				next_read_point[i] = pSdioData->data_0x3C[i];
 
 			recv_size = recv_buffer[0];
 		}
-		*sdio_ctx.sdio_data[a1].data_0x0C = 0x40000;
+		*pSdioData->data_0x0C = 0x40000;
 	}
 
 	return recv_size + cached_data_size;
 }
 
-int sceSDbgSdioWrite(SceUInt32 a1, const void *data, SceSize size){
+int sceSDbgSdioWrite(SceUInt32 core, const void *data, SceSize size){
 
 	SceBool wait_write_comp;
 	SceSize size_remain, size_write;
 	const char *write_data_ptr;
 	int send_buffer[4];
 
-	if(a1 >= 4)
+	if(core >= 4)
 		return 0x80020005;
 
-	if(size <= sdio_ctx.sdio_data[a1].data_0x24){
+	SceSDbgSdioData *pSdioData = &sdio_ctx.sdio_data[core];
+
+	if(size <= pSdioData->data_0x24){
 		write_data_ptr = data + size;
 
 		for(int i=0;i<size;i++)
-			sdio_ctx.sdio_data[a1].data_0x1C[i] = *(char *)(data + i);
+			pSdioData->data_0x1C[i] = *(char *)(data + i);
 
-		send_buffer[0] = sdio_ctx.sdio_data[a1].data_0x2C + 0x20;
+		send_buffer[0] = pSdioData->data_0x2C + 0x20;
 		send_buffer[1] = size;
 		send_buffer[2] = 2;
-		send_buffer[3] = sdio_ctx.sdio_data[a1].data_0x30;
+		send_buffer[3] = pSdioData->data_0x30;
 
 		size_remain = 0;
 	}else{
 		write_data_ptr = data;
 
-		send_buffer[0] = sdio_ctx.sdio_data[a1].data_0x2C;
+		send_buffer[0] = pSdioData->data_0x2C;
 		send_buffer[1] = size;
 		send_buffer[2] = 0;
-		send_buffer[3] = sdio_ctx.sdio_data[a1].data_0x30;
+		send_buffer[3] = pSdioData->data_0x30;
 
 		size_remain = size;
 	}
 
 	for(int i=0;i<0x10;i++)
-		sdio_ctx.sdio_data[a1].data_0x14[i] = ((char *)&send_buffer[0])[i];
+		pSdioData->data_0x14[i] = ((char *)&send_buffer[0])[i];
 
-	ksceKernelMaskIntr(0xB0 + sdio_ctx.sdio_data[a1].data_0x54);
-	*sdio_ctx.sdio_data[a1].data_0x08 = 2;
+	ksceKernelMaskIntr(0xB0 + pSdioData->data_0x54);
+	*pSdioData->data_0x08 = 2;
 
 	if(size_remain != 0){
-		while((*sdio_ctx.sdio_data[a1].data_0x04 & 0x20000) == 0);
-		*sdio_ctx.sdio_data[a1].data_0x04 = 0x20000;
+		while((*pSdioData->data_0x04 & 0x20000) == 0);
+		*pSdioData->data_0x04 = 0x20000;
 		asm volatile("dsb sy\n");
-		ksceKernelSetIntrMasked(0xB0 + sdio_ctx.sdio_data[a1].data_0x54);
+		ksceKernelSetIntrMasked(0xB0 + pSdioData->data_0x54);
 
 		wait_write_comp = SCE_FALSE;
 		while( size_remain != 0 ){
 			size_write = size_remain;
-			if (sdio_ctx.sdio_data[a1].data_0x30 <= size_remain)
-				size_write = sdio_ctx.sdio_data[a1].data_0x30;
+			if (pSdioData->data_0x30 <= size_remain)
+				size_write = pSdioData->data_0x30;
 
 			if(wait_write_comp){
-				while((*sdio_ctx.sdio_data[a1].data_0x04 & 0x40000) == 0);
-				*sdio_ctx.sdio_data[a1].data_0x04 = 0x40000;
+				while((*pSdioData->data_0x04 & 0x40000) == 0);
+				*pSdioData->data_0x04 = 0x40000;
 				asm volatile("dsb sy\n");
-				ksceKernelSetIntrMasked(0xB0 + sdio_ctx.sdio_data[a1].data_0x54);
+				ksceKernelSetIntrMasked(0xB0 + pSdioData->data_0x54);
 			}
 
 			for(int i=0;i<size_write;i++)
-				sdio_ctx.sdio_data[a1].data_0x20[i] = write_data_ptr[i];
+				pSdioData->data_0x20[i] = write_data_ptr[i];
 
-			ksceKernelMaskIntr(0xB0 + sdio_ctx.sdio_data[a1].data_0x54);
-			*sdio_ctx.sdio_data[a1].data_0x08 = 4;
+			ksceKernelMaskIntr(0xB0 + pSdioData->data_0x54);
+			*pSdioData->data_0x08 = 4;
 
 			wait_write_comp = SCE_TRUE;
 			size_remain -= size_write;
@@ -402,10 +406,10 @@ int sceSDbgSdioWrite(SceUInt32 a1, const void *data, SceSize size){
 		}
 	}
 
-	while((*sdio_ctx.sdio_data[a1].data_0x04 & 0x40000) == 0);
-	*sdio_ctx.sdio_data[a1].data_0x04 = 0x40000;
+	while((*pSdioData->data_0x04 & 0x40000) == 0);
+	*pSdioData->data_0x04 = 0x40000;
 	asm volatile("dsb sy\n");
-	ksceKernelSetIntrMasked(0xB0 + sdio_ctx.sdio_data[a1].data_0x54);
+	ksceKernelSetIntrMasked(0xB0 + pSdioData->data_0x54);
 
 	return size;
 }

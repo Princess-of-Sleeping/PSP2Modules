@@ -24,8 +24,6 @@ add_executable(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-  SceDebugForDriver_stub
-
   SceCpuForDriver_stub
   SceDipswForDriver_stub
   SceSysmemForDriver_stub
