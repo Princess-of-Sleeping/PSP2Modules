@@ -1,0 +1,38 @@
+modules:
+  SceNskbl:
+    nid: 0xFFFFFFFF
+    libraries:
+      SceKblForKernel:
+        version: 1
+        kernel: true
+        nid: 0xD0FC2991
+        functions:
+          ksceKblAuthMgrClose: 0x79241ACF
+          ksceKblCpuDisableIrqInterrupts: 0xDDB3A1A8
+          ksceKblFreeFileSystemCtx: 0x261F2747
+          ksceKblGetHardwareFlags: 0xD3A516D5
+          ksceKblInitDevice: 0xF7AF8690
+          ksceKblLoadModule: 0x6D7A1F18
+          ksceKblPutchar: 0x08E9FAEB
+          ksceKblSetNonSyncModuleStart: 0x9F4F3F98
+          ksceKblStartModule: 0x9A92436E
+          sceKernelCheckDipsw: 0xC8F4DE71
+          sceKernelCpuId: 0xB506A10E
+          sceKernelGetDebugLevel: 0xC011935A
+          sceKernelGetDebugPutchar: 0x9B868276
+          sceKernelPrintf: 0x13A5ABEF
+          sceKernelPrintfLevel: 0x752E7EEC
+          sceKernelSysrootCorelockLock: 0x807B4437
+          sceKernelSysrootCorelockUnlock: 0x314AA770
+          sceKernelSysrootIofilemgrStart: 0xC7B77991
+          sceKernelSysrootProcessmgrStart2: 0x161D6FCC
+          sceKernelSysrootThreadMgrStartAfterProcess: 0x1DB28F02
+          sceSblAimgrIsCEX: 0x8A416887
+          sceSblAimgrIsDEX: 0x5945F065
+          sceSblAimgrIsDiag: 0xC3DDDE15
+          sceSblAimgrIsDolce: 0xA7BD4417
+          sceSblAimgrIsGenuineDolce: 0xB6D00D6D
+          sceSblAimgrIsTest: 0x943E7537
+          sceSblAimgrIsTool: 0xB6C9ACF1
+          sceSblAimgrIsVITA: 0x838466E9
+          sceSblQafManagerIsAllowKernelDebug: 0xCE94F329
