@@ -7,6 +7,8 @@
 #include <psp2kern/kernel/cpu.h>
 #include <psp2kern/kernel/dipsw.h>
 #include <psp2kern/kernel/sysmem.h>
+#include "sdbgsdio.h"
+#include "sdbgsdio_internal.h"
 
 int SceKernelSuspendForDriver_CE7A2207(int a1, void *a2, int a3);
 int SceKernelSuspendForDriver_105C5752(int a1, void *a2, int a3);
@@ -14,48 +16,6 @@ void SceSysrootForKernel_8E4B61F1(int a1);
 void SceSysrootForKernel_AE55B7CC(void);
 int ksceKernelMaskIntr(int intr_code);
 int ksceKernelSetIntrMasked(int intr_code);
-
-typedef struct SceSDbgSdioData {
-	volatile void *mem_base;
-	volatile int *data_0x04;
-	volatile int *data_0x08;
-	volatile int *data_0x0C;
-
-	volatile void *data_0x10;
-	volatile char *data_0x14;
-	volatile void *data_0x18;
-	volatile char *data_0x1C;
-
-	volatile char *data_0x20;
-	int data_0x24;
-	int data_0x28;
-	int data_0x2C;
-
-	unsigned int data_0x30;
-	volatile char *data_0x34;
-	volatile char *data_0x38;
-	volatile char *data_0x3C;
-
-	volatile char *data_0x40;
-	int data_0x44;
-	int data_0x48;
-	int data_0x4C;
-
-	int data_0x50;
-	int data_0x54;
-	char data_0x58[0x11000];
-
-	char   *data_0x11058;
-	SceSize data_0x1105C;
-} SceSDbgSdioData; // size is 0x11060-bytes
-
-typedef struct SceSDbgSdioContext {
-	int data_0x00;
-	SceUID memid;
-	int data_0x08;
-	int data_0x0C;
-	SceSDbgSdioData sdio_data[4];
-} SceSDbgSdioContext; // size is 0x44190-bytes
 
 SceSDbgSdioContext sdio_ctx;
 
