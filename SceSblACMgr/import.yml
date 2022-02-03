@@ -1,0 +1,23 @@
+version: 2
+firmware: 3.60
+modules:
+  SceSysmem:
+    nid: 0x3380B323
+    libraries:
+      SceQafMgrForDriver:
+        kernel: true
+        nid: 0x4E29D3B6
+        functions:
+          SceQafMgrForDriver_694D1096: 0x694D1096
+      SceSysrootForDriver:
+        kernel: true
+        nid: 0x2ED7F97A
+        functions:
+          SceSysrootForDriver_26AA237C: 0x26AA237C
+          SceSysrootForDriver_56D85EB0: 0x56D85EB0
+          SceSysrootForDriver_E2515A08: 0xE2515A08
+      SceSysrootForKernel:
+        kernel: true
+        nid: 0x3691DA45
+        functions:
+          SceSysrootForKernel_BE1EF51C: 0xBE1EF51C
