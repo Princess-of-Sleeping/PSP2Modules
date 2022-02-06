@@ -664,9 +664,9 @@ int SceSblACMgrForKernel_75AAF981_cmd6(const SceSelfAuthInfo *auth_info, const S
 	tal = ksceKernelSysrootGetThreadAccessLevel();
 
 	if(0x40 == tal || 0x80 == tal){
-		idx = 1;
-	}else if(0x20 == tal || 0x10 == tal){
 		idx = 0;
+	}else if(0x20 == tal || 0x10 == tal){
+		idx = 1;
 	}else{
 		return 0x800F0928;
 	}
