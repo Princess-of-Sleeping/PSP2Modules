@@ -1,0 +1,31 @@
+modules:
+  SceSysmem:
+    nid: 0x3380B323
+    libraries:
+      SceSysmemForKernel:
+        version: 8
+        kernel: true
+        nid: 0x63A519E5
+        functions:
+          SceSysmemForKernel_08AB3DAE: 0x08AB3DAE
+          SceSysmemForKernel_9C7B62AB: 0x9C7B62AB
+          sceKernelAllocPartitionMemBlock: 0x5FFE4B79
+      SceKernelSuspendForDriver:
+        version: 1
+        kernel: true
+        nid: 0x7290B21C
+        functions:
+          SceKernelSuspendForDriver_105C5752: 0x105C5752
+          SceKernelSuspendForDriver_CE7A2207: 0xCE7A2207
+      SceSysrootForKernel:
+        version: 2
+        kernel: true
+        nid: 0x3691DA45
+        functions:
+          SceSysrootForKernel_118657C6: 0x118657C6
+          sceKernelSysrootTrapThreadAfterSyscall: 0x9139E22B
+          sceKernelSysrootCorelockLock: 0x8E4B61F1
+          sceKernelSysrootCorelockUnlock: 0xAE55B7CC
+          sceKernelSysrootGetSharedMemory: 0xC8C8C321
+          sceKernelSysrootGetVbaseResetVector: 0xCC85905B
+          sceKernelSysrootSetModulePrivate: 0x7A7E7C0C
