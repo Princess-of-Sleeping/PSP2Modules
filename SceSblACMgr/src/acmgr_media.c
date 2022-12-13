@@ -591,7 +591,7 @@ const SceSblVs0UserDriveAllowProgram vs0UserDriveAllowList[9] = {
 		.padding = 0
 	},
 	{
-		.authId = 0x2800000000008005,
+		.authId = 0x2800000000008005, // NPXS10083/NPXS10084
 		.path = inv_path_vs0_data_external_cert,
 		.padding = 0
 	},
@@ -637,14 +637,17 @@ SceBool sceSblACMgrIsVs0UserDriveAccessibleProgram(SceUID pid, const SceChar8 *p
 	const SceChar8 *current_path;
 	SceUInt64 authId = 0LL;
 
-	if(SCE_FALSE == sceSblACMgrHasAttributes(pid, 0x81))
+	if(SCE_FALSE == sceSblACMgrHasAttributes(pid, 0x81)){
 		return SCE_TRUE;
+	}
 
-	if(0 != sceSblACMgrGetProcessProgramAuthId(pid, &authId))
+	if(0 != sceSblACMgrGetProcessProgramAuthId(pid, &authId)){
 		return SCE_FALSE;
+	}
 
-	if(path == NULL)
-        return SCE_FALSE;
+	if(path == NULL){
+		return SCE_FALSE;
+	}
 
 	for(int i=0;i<9;i++){
 		if(vs0UserDriveAllowList[i].authId == authId){
@@ -657,29 +660,31 @@ SceBool sceSblACMgrIsVs0UserDriveAccessibleProgram(SceUID pid, const SceChar8 *p
 
 				int is_valid = 1;
 
-				for(int i=0;i<path_info->drive_length;i++){
-					is_valid &= (path_info->drive[i] == (SceChar8)(~(current_path[i])));
+				for(int n=0;n<path_info->drive_length;n++){
+					is_valid &= (path_info->drive[n] == (SceChar8)(~(current_path[n])));
 				}
 
 				if(is_valid != 0){
-					current_path = &current_path[path_info->drive_length];
+					current_path = &(current_path[path_info->drive_length]);
 					if(current_path[0] == '/'){
-						current_path = &current_path[1];
+						current_path = &(current_path[1]);
 					}
 
-					for(int i=0;i<path_info->path_length;i++){
-						is_valid &= (path_info->path[i] == (SceChar8)(~(current_path[i])));
+					for(int n=0;n<path_info->path_length;n++){
+						is_valid &= (path_info->path[n] == (SceChar8)(~(current_path[n])));
 					}
 
-					return (is_valid == 0) ? SCE_FALSE : SCE_TRUE;
+					if(is_valid != 0){
+						return SCE_TRUE;
+					}
 				}
 
-				path_info = &path_info[1];
+				path_info = &(path_info[1]);
 			}
 		}
 	}
 
-    return SCE_FALSE;
+	return SCE_FALSE;
 }
 
 typedef struct SceSblMediaIoMode {
